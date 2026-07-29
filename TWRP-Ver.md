@@ -1,0 +1,44 @@
+### TWRP 配置选项
+
+- **TW_THEME**: TWRP 主题设置。
+- **TW_CUSTOM_THEME**: 自定义TWRP主题。
+- **TW_INCLUDE_CRYPTO**: 是否包含加密支持。
+- **DEVICE_RESOLUTION**: 设备分辨率。
+- **TARGET_SCREEN_WIDTH** 和 **TARGET_SCREEN_HEIGHT**: 目标屏幕的宽度和高度。
+- **TW_DELAY_TOUCH_INIT_MS**: 触摸屏初始化延迟时间。
+- **TW_EVENT_LOGGING**: 是否启用事件日志记录。
+- **TW_OZIP_DECRYPT_KEY**: 用于解密oZip文件的密钥。
+- **TW_NO_SCREEN_BLANK** 和 **TW_NO_SCREEN_TIMEOUT**: 控制屏幕关闭和超时的设置。
+- **TW_OEM_BUILD**: 是否为OEM构建。
+- **TW_X_OFFSET, TW_Y_OFFSET, TW_W_OFFSET, TW_H_OFFSET**: 屏幕偏移量。
+- **TW_ROUND_SCREEN**: 是否为圆角屏幕。
+- **TWRES_PATH**: TWRP资源路径。
+- **TWRP_CUSTOM_KEYBOARD**: 自定义键盘设置。
+- **TW_EXTRA_LANGUAGES**: 额外语言支持。
+- **TARGET_RECOVERY_ROOT_OUT** 和 **TARGET_RECOVERY_PIXEL_FORMAT**: 目标恢复环境的根输出和像素格式。
+- **AB_OTA_UPDATER**: 是否启用AB（A/B）OTA更新。
+- **PLATFORM_SDK_VERSION**: 平台SDK版本。
+- **TW_INCLUDE_CRYPTO_FBE**: 是否包含文件基础加密（FBE）支持。
+- **TW_SUPPORT_INPUT_1_2_HAPTICS**: 支持1.2版本的触觉反馈。
+- **TW_TARGET_USES_QCOM_BSP**: 目标设备是否使用高通BSP。
+- **TW_NEW_ION_HEAP**: 新的ION堆设置。
+- **TW_INCLUDE_JPEG**: 是否包含JPEG支持。
+- **RECOVERY_TOUCHSCREEN_SWAP_XY** 等: 触摸屏相关设置。
+- **TWRP_EVENT_LOGGING**: TWRP事件日志记录。
+- **TARGET_RECOVERY_FORCE_PIXEL_FORMAT**: 强制像素格式。
+- **TARGET_RECOVERY_OVERSCAN_PERCENT**: 超出扫描百分比。
+- **TW_SCREEN_BLANK_ON_BOOT**: 启动时屏幕是否关闭。
+- **TW_FBIOPAN**: FBIOPAN设置。
+- **TW_ROTATION**: 屏幕旋转设置。
+- **BOARD_HAS_FLIPPED_SCREEN**: 屏幕是否翻转。
+- **TW_IGNORE_MAJOR_AXIS_0** 等: 触摸屏输入相关设置。
+- **TW_INPUT_BLACKLIST** 和 **TW_WHITELIST_INPUT**: 输入设备黑名单和白名单。
+- **TW_HAPTICS_TSPDRV**: 触觉反馈驱动设置。
+- **TARGET_PREBUILT_KERNEL**: 预构建内核。
+- **TW_EXCLUDE_NANO**: 是否排除NANO编辑器。
+- **TW_SUPPORT_INPUT_AIDL_HAPTICS**: 支持AIDL触觉反馈。
+- **TW_USE_SAMSUNG_HAPTICS**: 使用三星触觉反馈。
+- **TW_STATUS_ICONS_ALIGN**: 状态图标对齐设置。
+- **TW_CUSTOM_BATTERY_POS** 等: 自定义电池、时钟和CPU位置。
+
+https://github.com/TeamWin/android_vendor_twrp/blob/android-11/soong/makevars.mk
