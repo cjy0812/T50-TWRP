@@ -76,18 +76,14 @@ jobs:
         echo "构建目标: ${{ github.event.inputs.BUILD_TARGET }}.img"
         echo "::endgroup::"
 
+    - name: 清理
+      uses: rokibhasansagar/slimhub_actions@main
 
     - name: 检出代码
       uses: actions/checkout@v4
 
-
-    - name: 清理
-      uses: rokibhasansagar/slimhub_actions@main
-
-
     - name: 准备环境
       run: |
-        sudo apt update
 
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
           linux-modules-extra-$(uname -r) \
@@ -135,7 +131,6 @@ jobs:
         chmod a+x ~/bin/repo
         sudo ln -sf ~/bin/repo /usr/bin/repo
 
-
     - name: 初始化 repo
       run: |
         mkdir workspace
@@ -146,21 +141,31 @@ jobs:
         git config --global user.name "Nico170420"
         git config --global user.email "b170420nc@gmail.com"
 
-        repo init \
-          --depth=1 \
-          -u ${{ github.event.inputs.MANIFEST_URL }} \
-          -b ${{ github.event.inputs.MANIFEST_BRANCH }}
-
       id: pwd
+
 
     - name: 缓存 repo
       uses: actions/cache@v4
       with:
         path: |
           workspace/.repo
+
         key: repo-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ runner.os }}
+
         restore-keys: |
           repo-${{ github.event.inputs.MANIFEST_BRANCH }}-
+
+
+    - name: 初始化 repo manifest
+      run: |
+        cd workspace
+
+        repo init \
+          --depth=1 \
+          -u ${{ github.event.inputs.MANIFEST_URL }} \
+          -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+
+      working-directory: ${{ github.workspace }}
 
 
     - name: Repo 同步
@@ -168,16 +173,10 @@ jobs:
         repo sync \
           -j$(nproc --all) \
           --optimized-fetch \
-          --prune
+          --prune \
+          --force-sync
 
       working-directory: workspace
-
-    - name: Repo 同步
-      run: |
-        repo sync -j$(nproc --all) --force-sync
-
-      working-directory: workspace
-
 
     - name: 克隆设备树
       run: |
