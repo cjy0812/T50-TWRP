@@ -76,7 +76,7 @@ jobs:
         echo "构建目标: ${{ github.event.inputs.BUILD_TARGET }}.img"
         echo "::endgroup::"
 
-    - name: 清理
+    - name: 清理非必要软件包
       uses: rokibhasansagar/slimhub_actions@main
 
     - name: 检出代码
