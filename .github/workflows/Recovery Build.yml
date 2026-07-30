@@ -49,8 +49,7 @@ on:
       BUILD_TARGET:
         description: '构建目标'
         required: true
-        default: 'dist'
-
+        default: 'recoveryimage'
 
 jobs:
   build:
