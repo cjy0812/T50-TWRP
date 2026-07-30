@@ -44,7 +44,7 @@ on:
       MAKEFILE_NAME:
         description: 'Makefile 名称'
         required: true
-        default: 'omni_tb8786p1_64_k510_wifi'
+        default: 'twrp_tb8786p1_64_k510_wifi'
 
       BUILD_TARGET:
         description: '构建目标'
