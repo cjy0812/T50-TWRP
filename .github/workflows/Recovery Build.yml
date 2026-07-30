@@ -7,48 +7,62 @@ on:
         description: '清单 URL (如需使用 SSH 密钥，请使用 git@github.com:XXXXX)'
         required: true
         default: 'https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp'
+
       MANIFEST_BRANCH:
         description: '清单分支'
         required: true
         default: 'twrp-12.1'
+
       DEVICE_TREE_URL:
         description: '设备树 URL'
         required: true
         default: 'https://github.com/cjy0812/T50-TWRP_device_tree'
+
       DEVICE_TREE_BRANCH:
         description: '设备树分支'
         required: true
         default: 'master'
+
       DEVICE_PATH:
         description: '设备路径'
         required: true
         default: 'device/zyb/tb8786p1_64_k510_wifi'
+
       COMMON_TREE_URL:
         description: '通用树 URL (如无通用树，请留空)'
         required: false
+
       COMMON_PATH:
         description: '通用树路径 (如无通用树，请留空)'
         required: false
+
       DEVICE_NAME:
         description: '设备名称'
         required: true
         default: 'tb8786p1_64_k510_wifi'
+
       MAKEFILE_NAME:
         description: 'Makefile 名称'
         required: true
         default: 'omni_tb8786p1_64_k510_wifi'
+
       BUILD_TARGET:
         description: '构建目标'
         required: true
         default: 'recovery'
 
+
 jobs:
-  构建:
+  build:
     if: github.event.repository.owner.id == github.event.sender.id
+
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+
     steps:
+
     - name: 显示运行参数
       run: |
         echo "::group::用户环境变量"
@@ -62,40 +76,57 @@ jobs:
         echo "构建目标: ${{ github.event.inputs.BUILD_TARGET }}.img"
         echo "::endgroup::"
 
-    # 您可能想先检出您的仓库，但不是必须的
+
     - name: 检出代码
       uses: actions/checkout@v4
 
-    # 使用自定义复合运行操作清理 Actions 工作空间
+
     - name: 清理
       uses: rokibhasansagar/slimhub_actions@main
-      # 就是这样！现在使用您的常规步骤
+
 
     - name: 准备环境
       run: |
         sudo apt update && sudo apt upgrade -y
+
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-            linux-modules-extra-$(uname -r) \
-            gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib \
-            libc6-dev lib32ncurses-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils \
-            xsltproc bc ccache lib32readline-dev lib32z1-dev liblz4-tool libncurses-dev libsdl1.2-dev \
-            build-essential libgtk-3-dev libglu1-mesa-dev freeglut3-dev git libxml2 lzop pngcrush schedtool squashfs-tools \
-            imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libncurses6 python3 tar
+          linux-modules-extra-$(uname -r) \
+          gperf gcc-multilib gcc-10-multilib \
+          g++-multilib g++-10-multilib \
+          libc6-dev lib32ncurses-dev \
+          x11proto-core-dev libX11-dev tree \
+          lib32z-dev libgl1-mesa-dev libxml2-utils \
+          xsltproc bc ccache \
+          lib32readline-dev lib32z1-dev \
+          liblz4-tool libncurses-dev \
+          libsdl1.2-dev build-essential \
+          libgtk-3-dev libglu1-mesa-dev \
+          freeglut3-dev git libxml2 lzop \
+          pngcrush schedtool squashfs-tools \
+          imagemagick libbz2-dev lzma \
+          ncftp qemu-user-static \
+          libstdc++-10-dev libncurses6 \
+          python3 tar
+
 
     - name: 安装 OpenJDK
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
-        java-version: '11'
+        distribution: zulu
+        java-version: 11
+
 
     - name: 设置 SSH 密钥
-      if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') || 
-          startsWith(github.event.inputs.DEVICE_TREE_URL, 'git@github.com') ||
-          startsWith(github.event.inputs.COMMON_TREE_URL, 'git@github.com') }}
+      if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') ||
+              startsWith(github.event.inputs.DEVICE_TREE_URL, 'git@github.com') ||
+              startsWith(github.event.inputs.COMMON_TREE_URL, 'git@github.com') }}
+
       uses: webfactory/ssh-agent@v0.9.0
+
       with:
-          ssh-private-key: |
-            ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-private-key: |
+          ${{ secrets.SSH_PRIVATE_KEY }}
+
 
     - name: 安装 repo
       run: |
@@ -104,85 +135,153 @@ jobs:
         chmod a+x ~/bin/repo
         sudo ln -sf ~/bin/repo /usr/bin/repo
 
+
     - name: 初始化 repo
       run: |
         mkdir workspace
         cd workspace
+
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
+
         git config --global user.name "Nico170420"
         git config --global user.email "b170420nc@gmail.com"
-        repo init --depth=1 -u ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+
+        repo init \
+          --depth=1 \
+          -u ${{ github.event.inputs.MANIFEST_URL }} \
+          -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+
       id: pwd
+
+    - name: 缓存 repo
+      uses: actions/cache@v4
+      with:
+        path: |
+          workspace/.repo
+        key: repo-${{ github.event.inputs.MANIFEST_BRANCH }}-${{ runner.os }}
+        restore-keys: |
+          repo-${{ github.event.inputs.MANIFEST_BRANCH }}-
+
+
+    - name: Repo 同步
+      run: |
+        repo sync \
+          -j$(nproc --all) \
+          --optimized-fetch \
+          --prune
+
+      working-directory: workspace
 
     - name: Repo 同步
       run: |
         repo sync -j$(nproc --all) --force-sync
+
       working-directory: workspace
+
 
     - name: 克隆设备树
       run: |
-        git clone ${{ github.event.inputs.DEVICE_TREE_URL }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
+        git clone \
+          ${{ github.event.inputs.DEVICE_TREE_URL }} \
+          -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} \
+          ./${{ github.event.inputs.DEVICE_PATH }}
+
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
 
     - name: 克隆通用树
       if: |
-        github.event.inputs.COMMON_TREE_URL != null
-        && github.event.inputs.COMMON_PATH != null
+        github.event.inputs.COMMON_TREE_URL != null &&
+        github.event.inputs.COMMON_PATH != null
+
       run: |
-        git clone ${{ github.event.inputs.COMMON_TREE_URL }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.COMMON_PATH }}
+        git clone \
+          ${{ github.event.inputs.COMMON_TREE_URL }} \
+          -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} \
+          ./${{ github.event.inputs.COMMON_PATH }}
+
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
 
     - name: 检查构建树类型
       uses: haya14busa/action-cond@v1
+
       id: buildtree
+
       with:
         cond: ${{ github.event.inputs.MANIFEST_BRANCH == 'twrp-11' || github.event.inputs.MANIFEST_BRANCH == 'twrp-12.1' }}
         if_true: twrp
         if_false: omni
 
+
     - name: 同步设备依赖
       run: |
-        bash ${GITHUB_WORKSPACE}/scripts/convert.sh ${{ github.event.inputs.DEVICE_PATH }}/${{ steps.buildtree.outputs.value }}.dependencies
+        bash ${GITHUB_WORKSPACE}/scripts/convert.sh \
+        ${{ github.event.inputs.DEVICE_PATH }}/${{ steps.buildtree.outputs.value }}.dependencies
+
         repo sync -j$(nproc --all)
+
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
       continue-on-error: true
+
 
     - name: 设置交换空间
       uses: pierotofy/set-swap-space@master
+
       with:
         swap-size-gb: 12
 
+
     - name: 设置 ccache
       uses: actions/cache@v4
+
       with:
         path: ~/.ccache
+
         key: ccache-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.MANIFEST_BRANCH }}
+
         restore-keys: |
           ccache-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.MANIFEST_BRANCH }}-
+
 
     - name: 构建 recovery
       run: |
         export USE_CCACHE=1
-        export CCACHE_EXEC=/usr/bin/ccache
-        ccache -M 5G
+        export CCACHE_EXEC=$(which ccache)
+        export CCACHE_DIR=~/.ccache
+
+        ccache -M 10G
         ccache -s
+
         source build/envsetup.sh
+
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
+
+        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && \
+        make ${{ github.event.inputs.BUILD_TARGET }}image \
+        -j$(nproc --all)
+
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+
 
     - name: 上传到 Release
       uses: softprops/action-gh-release@v2
+
       with:
-        files: | 
+        files: |
           workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
           workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.zip
           workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*vendor*.img
+
         name: ${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_id }}
+
         tag_name: ${{ github.run_id }}
+
         body: |
           清单分支: ${{ github.event.inputs.MANIFEST_BRANCH }}
           设备: ${{ github.event.inputs.DEVICE_NAME }}
           构建目标: ${{ github.event.inputs.BUILD_TARGET }}.img
+
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
