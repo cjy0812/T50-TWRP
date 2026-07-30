@@ -271,10 +271,21 @@ jobs:
 
         export ALLOW_MISSING_DEPENDENCIES=true
 
+        source build/envsetup.sh
+
+        export ALLOW_MISSING_DEPENDENCIES=true
+
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
 
-        make ${{ github.event.inputs.BUILD_TARGET }} \
-           -j$(nproc --all)
+        echo "===== BUILD VAR ====="
+        get_build_var PRODUCT_OUT
+        get_build_var BOARD_USES_RECOVERY_AS_BOOT
+        get_build_var INSTALLED_BOOTIMAGE_TARGET
+        get_build_var INSTALLED_RECOVERYIMAGE_TARGET
+        echo "===================="
+
+        m ${{ github.event.inputs.BUILD_TARGET }} \
+          -j$(nproc --all)
 
         echo
         echo "========== OUTPUT =========="
