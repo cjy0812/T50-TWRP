@@ -251,7 +251,13 @@ jobs:
         rm -rf out
 
     - name: Debug SSH
+      if: ${{ github.event.inputs.ENABLE_SSH == 'true' }}
       uses: mxschmitt/action-tmate@v3
+
+      ENABLE_SSH:
+        description: '是否开启 SSH 调试'
+        required: true
+        default: 'false'
 
     - name: 构建 recovery
       run: |
