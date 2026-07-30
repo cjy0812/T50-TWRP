@@ -87,9 +87,9 @@ jobs:
 
     - name: 准备环境
       run: |
+        sudo apt update
 
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-
           linux-modules-extra-$(uname -r) \
           gperf gcc-multilib gcc-10-multilib \
           g++-multilib g++-10-multilib \
