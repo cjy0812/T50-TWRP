@@ -190,8 +190,8 @@ jobs:
 
     - name: 克隆通用树
       if: |
-        github.event.inputs.COMMON_TREE_URL != null &&
-        github.event.inputs.COMMON_PATH != null
+        github.event.inputs.COMMON_TREE_URL != '' &&
+        github.event.inputs.COMMON_PATH != ''
 
       run: |
         git clone \
@@ -215,14 +215,17 @@ jobs:
 
     - name: 同步设备依赖
       run: |
-        bash ${GITHUB_WORKSPACE}/scripts/convert.sh \
-        ${{ github.event.inputs.DEVICE_PATH }}/${{ steps.buildtree.outputs.value }}.dependencies
+        DEP_FILE="${{ github.event.inputs.DEVICE_PATH }}/${{ steps.buildtree.outputs.value }}.dependencies"
 
-        repo sync -j$(nproc --all)
+        if [ -f "$DEP_FILE" ]; then
+          echo "Found $DEP_FILE"
+          bash ${GITHUB_WORKSPACE}/scripts/convert.sh "$DEP_FILE"
+          repo sync -j$(nproc --all)
+        else
+          echo "No dependency file, skip."
+        fi
 
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
-
-      continue-on-error: true
 
 
     - name: 设置交换空间
@@ -257,9 +260,17 @@ jobs:
 
         export ALLOW_MISSING_DEPENDENCIES=true
 
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && \
+        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
+
         make ${{ github.event.inputs.BUILD_TARGET }}image \
-        -j$(nproc --all)
+            -j$(nproc --all)
+
+        echo
+        echo "========== OUTPUT =========="
+        find out/target/product/${{ github.event.inputs.DEVICE_NAME }} \
+            -maxdepth 1 \
+            -type f
+        echo "============================"
 
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
@@ -269,9 +280,15 @@ jobs:
 
       with:
         files: |
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/boot.img
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img
           workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.zip
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*vendor*.img
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img
+
+        fail_on_unmatched_files: false
+
+        overwrite_files: true
 
         name: ${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_id }}
 
@@ -280,7 +297,6 @@ jobs:
         body: |
           清单分支: ${{ github.event.inputs.MANIFEST_BRANCH }}
           设备: ${{ github.event.inputs.DEVICE_NAME }}
-          构建目标: ${{ github.event.inputs.BUILD_TARGET }}.img
 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
