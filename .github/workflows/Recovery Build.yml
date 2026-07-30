@@ -49,7 +49,7 @@ on:
       BUILD_TARGET:
         description: '构建目标'
         required: true
-        default: 'recovery'
+        default: 'dist'
 
 
 jobs:
@@ -262,8 +262,8 @@ jobs:
 
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
 
-        make ${{ github.event.inputs.BUILD_TARGET }}image \
-            -j$(nproc --all)
+        make ${{ github.event.inputs.BUILD_TARGET }} \
+           -j$(nproc --all)
 
         echo
         echo "========== OUTPUT =========="
