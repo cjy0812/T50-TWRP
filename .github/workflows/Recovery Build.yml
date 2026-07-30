@@ -38,7 +38,7 @@ on:
         required: true
         default: 'omni_tb8786p1_64_k510_wifi'
       BUILD_TARGET:
-        description: 'BUILD_TARGET''
+        description: 'BUILD_TARGET'
         required: true
         default: 'recovery'
 
