@@ -302,11 +302,8 @@ jobs:
 
       with:
         files: |
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/boot.img
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.zip
-          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img
+         workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img
+         workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.zip
 
         fail_on_unmatched_files: false
 
