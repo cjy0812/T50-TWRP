@@ -51,6 +51,11 @@ on:
         required: true
         default: 'recoveryimage'
 
+      ENABLE_SSH:
+        description: '是否开启 SSH 调试'
+        required: true
+        default: 'false'
+
 jobs:
   build:
     if: github.event.repository.owner.id == github.event.sender.id
@@ -245,18 +250,9 @@ jobs:
         restore-keys: |
           ccache-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.MANIFEST_BRANCH }}-
 
-    - name: 清理out以及缓存？
-      run: |
-        rm -rf out
-
     - name: Debug SSH
       if: ${{ github.event.inputs.ENABLE_SSH == 'true' }}
       uses: mxschmitt/action-tmate@v3
-
-      ENABLE_SSH:
-        description: '是否开启 SSH 调试'
-        required: true
-        default: 'false'
 
     - name: 构建 recovery
       run: |
@@ -268,11 +264,6 @@ jobs:
         ccache -s
 
         source build/envsetup.sh
-
-        export ALLOW_MISSING_DEPENDENCIES=true
-
-        source build/envsetup.sh
-
         export ALLOW_MISSING_DEPENDENCIES=true
 
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
@@ -284,14 +275,13 @@ jobs:
         get_build_var INSTALLED_RECOVERYIMAGE_TARGET
         echo "===================="
 
-        m ${{ github.event.inputs.BUILD_TARGET }} \
+        make ${{ github.event.inputs.BUILD_TARGET }} \
           -j$(nproc --all)
 
         echo
         echo "========== OUTPUT =========="
-        find out/target/product/${{ github.event.inputs.DEVICE_NAME }} \
-            -maxdepth 1 \
-            -type f
+        find out/target/product/${{ github.event.inputs.DEVICE_NAME }} -maxdepth 1 -type f
+        ls -lh out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img || true
         echo "============================"
 
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
