@@ -246,9 +246,10 @@ jobs:
         restore-keys: |
           ccache-${{ github.event.inputs.DEVICE_NAME }}-${{ github.event.inputs.MANIFEST_BRANCH }}-
 
-    - name: 清理out
+    - name: 清理out以及缓存？
       run: |
         rm -rf out
+        make clean
 
     - name: 构建 recovery
       run: |
