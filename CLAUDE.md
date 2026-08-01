@@ -28,7 +28,7 @@ gh workflow run "Recovery Build.yml" \
   -f DEVICE_PATH="device/<厂商>/<设备代号>" \
   -f DEVICE_NAME="<设备代号>" \
   -f MAKEFILE_NAME="twrp_<设备代号>" \
-  -f BUILD_TARGET="bootimage"
+  -f BUILD_TARGET="vendorbootimage"
 ```
 
 ### 构建目标
@@ -37,7 +37,7 @@ gh workflow run "Recovery Build.yml" \
 |------|------|---------|
 | `bootimage` | `boot.img` | recovery-as-boot 方案的设备 |
 | `recoveryimage` | `recovery.img` | 有独立 recovery 分区的设备 |
-| `vendorbootimage` | `vendorbootimg` | vendor_boot 方案的设备（MTK A/B） |
+| `vendorbootimage` | `vendor_boot.img` | vendor_boot 方案的设备（MTK A/B） |
 
 ## 架构
 
@@ -66,10 +66,11 @@ gh workflow run "Recovery Build.yml" \
 ### 常见 BoardConfig.mk 变量
 
 ```makefile
-BOARD_USES_RECOVERY_AS_BOOT := true    # recovery 打包进 boot.img
+BOARD_USES_RECOVERY_AS_BOOT :=         # T50 不使用 boot.img 承载 recovery
 BOARD_USES_VENDOR_BOOT := true         # recovery 在 vendor_boot 分区
+BOARD_BOOT_HEADER_VERSION := 4
 BOARD_BOOTIMAGE_PARTITION_SIZE := <大小>
-BOARD_VENDORBOOTIMAGE_PARTITION_SIZE := <大小>
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := <大小>
 ```
 
 ## 项目上下文
@@ -79,5 +80,7 @@ BOARD_VENDORBOOTIMAGE_PARTITION_SIZE := <大小>
 - SoC：MediaTek MT6768
 - 架构：A/B 分区 + vendor_boot 方案
 - 原始 dump 文件：`G:\T50\Raw_dump`
+- factory 系统：Android 14 / SDK 34 / `UP1A.231005.007`
+- 没有独立 `recovery` 分区；默认构建目标使用 `vendorbootimage`
 
 详见 `背景信息.md` 获取项目历史和设备规格。
