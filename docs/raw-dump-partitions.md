@@ -1,6 +1,6 @@
 # T50 原始转储分区说明
 
-本文档说明 `G:\T50\Raw_dump` 下的分区转储。请将该目录视为 T50/ZPD1321 布局的权威来源；生成的设备树和旧笔记仅供参考。
+本文档说明 T50 的分区转储。`G:\T50\Raw_dump` 是学习系统转储，`G:\T50\T50-aosp-zyyme-260716` 是当前设备 fastbootd 匹配的工厂底座；判断当前适配时以后者为准。
 
 ## 关键结论
 
@@ -9,7 +9,8 @@
 - 该设备系列的回退资源位于 `vendor_boot` 中，因此 TWRP 构建目标应为 `vendorbootimage`，而非 `recoveryimage`。
 - `boot_a.bin` 大小为 32 MiB，包含内核和一个较小的通用启动 ramdisk。
 - `vendor_boot_a.bin` 大小为 64 MiB，包含供应商 ramdisk、第一阶段 fstab 文件、recovery rc 文件、DTB 和许多内核模块。
-- `super.bin` 中的工厂 Android 系统为 Android 14 / SDK 34，构建 ID 为 `UP1A.231005.007`。
+- 工厂包 `super.bin` 为 Android 14 / SDK 34，构建 ID 为 `UP1A.231005.007`，指纹为 `alps/.../mp1V814:userdebug/test-keys`。
+- 当前设备 fastbootd fetch 的 `vendor_boot_a` 与 `G:\T50\T50-aosp-zyyme-260716\vendor_boot_a.bin` SHA256 一致。
 
 ## 槽位与分区映射
 
@@ -44,13 +45,13 @@ Android 12+ fastboot 还支持在 fastboot 实现允许的设备上进行命名�
 fastboot flash vendor_boot:recovery recovery.cpio.gz
 ```
 
-对于 CI 发布，建议上传 `vendor_boot.img`，不要将 `recovery.img` 视为 T50 的有效工件。
+对于 CI 发布，建议上传 `vendor_boot.img` 和 `recovery.cpio.gz`，不要将 `recovery.img` 视为 T50 的有效工件。当前更推荐后续基于工厂包 `vendor_boot_a.bin` 做离线 repack，而不是整包刷 CI 生成的 `vendor_boot.img`。
 
 ## 原始转储证据
 
-`boot_a.bin` 以 `ANDROID!` 开头，启动头部 v4，内核大小约 19.3 MiB，ramdisk 大小约 1.5 MiB。
+工厂包 `boot_a.bin` 以 `ANDROID!` 开头，启动头部 v4，内核大小约 20.0 MiB，ramdisk 大小约 1.7 MiB。
 
-`vendor_boot_a.bin` 以 `VNDRBOOT` 开头，供应商启动头部 v4，包含一个平台 ramdisk 片段、一个 156 KiB 的 DTB，分区大小为 64 MiB。其 ramdisk 包含：
+工厂包 `vendor_boot_a.bin` 以 `VNDRBOOT` 开头，供应商启动头部 v4，包含一个平台 ramdisk 片段、一个约 156 KiB 的 DTB，分区大小为 64 MiB。其 ramdisk 包含：
 
 - `first_stage_ramdisk/fstab.mt6768`
 - `first_stage_ramdisk/fstab.mt8786`
@@ -58,10 +59,10 @@ fastboot flash vendor_boot:recovery recovery.cpio.gz
 - `init.recovery.mt8786.rc`
 - `lib/modules/*.ko`
 
-`super.bin` 包含 Android 14 产品属性：
+工厂包 `super.bin` 包含 Android 14 产品属性：
 
 ```properties
-ro.product.build.fingerprint=ZYB/sys_mssi_t_64_cn_wifi/mssi_t_64_cn_wifi:14/UP1A.231005.007/751_752_753_754_755_756-27:user/release-keys
+ro.product.build.fingerprint=alps/sys_mssi_t_64_cn_wifi/mssi_t_64_cn_wifi:14/UP1A.231005.007/mp1V814:userdebug/test-keys
 ro.product.build.version.release=14
 ro.product.build.version.sdk=34
 ro.product.ab_ota_partitions=boot,product,system,system_ext,vendor

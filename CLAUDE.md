@@ -79,8 +79,9 @@ BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := <大小>
 - 设备树仓库：`cjy0812/T50-TWRP_device_tree`（分支：`twrp-12.1`）
 - SoC：MediaTek MT6768
 - 架构：A/B 分区 + vendor_boot 方案
-- 原始 dump 文件：`G:\T50\Raw_dump`
-- factory 系统：Android 14 / SDK 34 / `UP1A.231005.007`
+- 学习系统 dump 文件：`G:\T50\Raw_dump`
+- 当前工厂底座：`G:\T50\T50-aosp-zyyme-260716`
+- factory 系统：Android 14 / SDK 34 / `UP1A.231005.007` / `mp1V814:userdebug/test-keys`
 - 没有独立 `recovery` 分区；默认构建目标使用 `vendorbootimage`
 
 详见 `背景信息.md` 获取项目历史和设备规格。

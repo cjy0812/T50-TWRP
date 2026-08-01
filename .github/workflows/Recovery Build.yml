@@ -288,6 +288,7 @@ jobs:
         echo "========== OUTPUT =========="
         find out/target/product/${{ github.event.inputs.DEVICE_NAME }} -maxdepth 1 -type f
         ls -lh out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img || true
+        ls -lh out/target/product/${{ github.event.inputs.DEVICE_NAME }}/obj/PACKAGING/vendor_ramdisk_fragments_intermediates/recovery.cpio.gz || true
         echo "============================"
 
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
@@ -300,6 +301,7 @@ jobs:
         files: |
          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img
          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.zip
+         workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/obj/PACKAGING/vendor_ramdisk_fragments_intermediates/recovery.cpio.gz
 
         fail_on_unmatched_files: false
 
