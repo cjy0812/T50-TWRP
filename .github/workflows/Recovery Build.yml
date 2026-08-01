@@ -21,7 +21,7 @@ on:
       DEVICE_TREE_BRANCH:
         description: '设备树分支'
         required: true
-        default: 'master'
+        default: 'twrp-12.1'
 
       DEVICE_PATH:
         description: '设备路径'
@@ -47,9 +47,9 @@ on:
         default: 'twrp_tb8786p1_64_k510_wifi'
 
       BUILD_TARGET:
-        description: '构建目标'
+        description: '构建目标 (bootimage/recoveryimage/vendorbootimage)'
         required: true
-        default: 'recoveryimage'
+        default: 'vendorbootimage'
 
       ENABLE_SSH:
         description: '是否开启 SSH 调试'
